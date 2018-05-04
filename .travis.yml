@@ -14,6 +14,15 @@ go:
 # code in vendor/
 install: true
 
+services: postgresql
+
+before_script:
+  -sudo psql -c 'CREATE ROLE kopie SUPERUSER LOGIN CREATEDB;' -U postgres
+  -sudo psql -c 'CREATE DATABASE kopie_test;' -U kopie
+  -sudo psql -c 'CREATE DATABASE kopie_test2;' -U kopie
+  -sudo psql -d kopie_test  -c 'CREATE TABLE test (name VARCHAR, date TIMESTAMP);' -U kopie
+
+
 os:
   - linux
 
