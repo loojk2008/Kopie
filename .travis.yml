@@ -22,7 +22,6 @@ before_script:
   -sudo psql -c 'CREATE DATABASE kopie_test2;' -U kopie
   -sudo psql -d kopie_test  -c 'CREATE TABLE test (name VARCHAR, date TIMESTAMP);' -U kopie
 
-
 os:
   - linux
 
@@ -42,3 +41,6 @@ notifications:
 # in a modern Go project.
 script:
   - go test -v
+
+after_failure:
+  - cat MSBuild_*.failure.txt
