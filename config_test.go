@@ -27,11 +27,9 @@ func TestConfig_Read(t *testing.T) {
 
 	assert.Equal(t, "test", c.Databases[0].Tables[0].Name)
 	assert.Equal(t, true, c.Databases[0].Tables[0].Replicate)
-	assert.Equal(t, true, c.Databases[0].Tables[0].DbLink)
 
 	assert.Equal(t, "test2", c.Databases[0].Tables[1].Name)
 	assert.Equal(t, true, c.Databases[0].Tables[1].Replicate)
-	assert.Equal(t, true, c.Databases[0].Tables[1].DbLink)
 
 	// Testing if we loaded the second database correctly
 	assert.Equal(t, "kopie_test2", c.Databases[1].Name)
@@ -43,11 +41,9 @@ func TestConfig_Read(t *testing.T) {
 
 	assert.Equal(t, "test", c.Databases[1].Tables[0].Name)
 	assert.Equal(t, true, c.Databases[1].Tables[0].Replicate)
-	assert.Equal(t, true, c.Databases[1].Tables[0].DbLink)
 
 	assert.Equal(t, "test2", c.Databases[1].Tables[1].Name)
 	assert.Equal(t, true, c.Databases[1].Tables[1].Replicate)
-	assert.Equal(t, true, c.Databases[1].Tables[1].DbLink)
 
 	// Testing if we loaded the first procedure correctly
 	assert.Equal(t, "mainProcedure", c.Procedures[0].Name)

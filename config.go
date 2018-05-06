@@ -9,18 +9,29 @@ import (
 )
 
 type Database struct {
-	Name     string `toml:"name"`
-	Type     string `toml:"type"`
-	Host     string `toml:"host"`
-	Port     int    `toml:"port"`
-	User     string `toml:"user"`
-	Password string `toml:"password"`
-	Sslmode  string `toml:"sslmode"`
-	Tables   []struct {
-		Name      string `toml:"name"`
-		Replicate bool   `toml:"replicate"`
-		DbLink    bool   `toml:"db_link"`
-	} `toml:"tables"`
+	Name     string  `toml:"name"`
+	Type     string  `toml:"type"`
+	Host     string  `toml:"host"`
+	Port     int     `toml:"port"`
+	User     string  `toml:"user"`
+	Password string  `toml:"password"`
+	Sslmode  string  `toml:"sslmode"`
+	Tables   []Table `toml:"tables"`
+}
+
+type Table struct {
+	Name      string `toml:"name"`
+	Replicate bool   `toml:"replicate"`
+	alias     string
+}
+
+func (d *Database) GetTable(name string) (int, Table) {
+	for i, table := range d.Tables {
+		if table.Name == name || table.alias == name {
+			return i, table
+		}
+	}
+	return 0, Table{}
 }
 
 func (d *Database) PostgresUrl() string {
@@ -79,6 +90,15 @@ func (c *Config) GetProcedure(name string) Procedure {
 		}
 	}
 	return Procedure{}
+}
+
+func (c *Config) GetDatabase(name string) Database {
+	for _, db := range c.Databases {
+		if db.Name == name {
+			return db
+		}
+	}
+	return Database{}
 }
 
 func (c *Config) Read(path string) {

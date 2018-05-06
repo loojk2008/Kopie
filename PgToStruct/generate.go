@@ -27,21 +27,21 @@ func GenerateModel(table string, pkeys map[string]bool, fields []*Field, tables 
 	templateFields := []*TemplateField{}
 
 	for _, field := range fields {
-		fieldType := gormDataType(field.Type)
+		fieldType := field.Type
 
-		if fieldType == "time.Time" || fieldType == "*time.Time" {
-			needTimePackage = true
+		//if fieldType == "time.Time" || fieldType == "*time.Time" {
+		//	needTimePackage = true
+		//
+		//	if field.Nullable {
+		//		fieldType = "*time.Time"
+		//	} else {
+		//		fieldType = "time.Time"
+		//	}
+		//}
 
-			if field.Nullable {
-				fieldType = "*time.Time"
-			} else {
-				fieldType = "time.Time"
-			}
-		}
-
-		if fieldType == "double precision" {
-			fieldType = "float32"
-		}
+		//if fieldType == "double precision" {
+		//	fieldType = "float32"
+		//}
 
 		templateFields = append(templateFields, &TemplateField{
 			Name: gormColumnName(field.Name),

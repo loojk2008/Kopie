@@ -3,6 +3,7 @@ package Kopie
 import (
 	"errors"
 	"github.com/cenkalti/backoff"
+	"github.com/jinzhu/gorm"
 )
 
 type Worker struct {
@@ -19,7 +20,7 @@ func (w *Worker) Read() error {
 	default:
 		return errors.New("Could not detect protocol type.")
 	case "pump":
-		w.protocol = &Pump{w.Config, w.Procedure}
+		w.protocol = &Pump{w.Config, w.Procedure, Database{}, Database{}, &gorm.DB{}, &gorm.DB{}}
 	case "testprotocol":
 		w.protocol = &TestProtocol{w.Config, w.Procedure}
 	}

@@ -32,11 +32,9 @@ label = "Kopie default configuration."
   [[databases.tables]]
     name = "test"
     replicate = true
-    db_link = true
   [[databases.tables]]
     name = "test2"
     replicate = true
-    db_link = true
 
 [[protocols]]
   name = "mainProcedure"
