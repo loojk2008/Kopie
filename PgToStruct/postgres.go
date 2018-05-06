@@ -5,6 +5,7 @@ import (
 	_ "github.com/lib/pq"
 	"strconv"
 	"strings"
+	"github.com/jinzhu/gorm"
 )
 
 type Postgres struct {
@@ -29,6 +30,11 @@ func NewPostgres(url string) (*Postgres, error) {
 	}, nil
 }
 
+func PostgresfromCon(con gorm.DB) (*Postgres, error) {
+	return &Postgres{
+		DB: con.DB(),
+	}, nil
+}
 func (p *Postgres) retrieveAllTables() (*sql.Rows, error) {
 	return p.DB.Query(`select relname as TABLE_NAME from pg_stat_user_tables`)
 }

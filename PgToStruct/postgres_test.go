@@ -2,6 +2,7 @@ package PgToStruct
 
 import (
 	"testing"
+	"github.com/jinzhu/gorm"
 )
 
 var url = "host=localhost port=5432 user=kopie dbname=kopie_test password=kopietestpw sslmode=disable"
@@ -102,4 +103,13 @@ func TestPostgres_TablesToStruct(t *testing.T) {
 	if tables["test"].Fields[1].Name != "Date" {
 		t.Error("Failed to retrieve second field name")
 	}
+}
+
+func TestPostgresfromCon(t *testing.T) {
+	db, err := gorm.Open("postgres", url)
+	if err != nil {
+		t.Error(err)
+	}
+	// if this errors the test fails.
+	PostgresfromCon(*db)
 }

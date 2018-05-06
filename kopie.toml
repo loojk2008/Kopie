@@ -1,0 +1,62 @@
+# An example of a Kopie configuration file
+
+# Just for logging purposes, incase you are running multiple different
+# configuration files
+label = "Kopie default configuration."
+
+[[databases]]
+  name = "kopie_test"
+  type = "postgres"
+  host = "localhost"
+  port = 5432
+  user = "kopie"
+  password = "kopietestpw"
+  sslmode = "disable"
+  [[databases.tables]]
+    name = "test"
+    replicate = true
+    db_link = true
+  [[databases.tables]]
+    name = "test2"
+    replicate = true
+    db_link = true
+
+[[databases]]
+  name = "kopie_test2"
+  type = "postgres"
+  host = "localhost"
+  port = 5432
+  user = "kopie"
+  password = "kopietestpw2"
+  sslmode = "disable"
+  [[databases.tables]]
+    name = "test"
+    replicate = true
+    db_link = true
+  [[databases.tables]]
+    name = "test2"
+    replicate = true
+    db_link = true
+
+[[protocols]]
+  name = "mainProcedure"
+  type = "pump"
+  [protocols.pump]
+   master = "kopie_test"
+   tables = [
+        "test",
+        "test2",
+   ]
+   slave = "kopie_test2"
+   automigrate = true
+
+[[protocols]]
+  name = "testProcedure"
+  type = "testprotocol"
+  [protocols.test]
+   file = "testprotocol.test"
+   message = "Testing"
+
+
+
+    

@@ -2,81 +2,89 @@ package Kopie
 
 import (
 	"testing"
+	"github.com/stretchr/testify/assert"
 )
 
-func Test_GetConfig(t *testing.T) {
-	c := Config{Path: "test_cfg.yaml"}
-	c.Load()
+var configpath = "kopie.toml"
 
-	//Testing if database 0 is correctly read
-	database := c.Databases[0]
+func getConf() Config{
+	c := Config{}
+	c.Read(configpath)
+	return c
+}
 
-	if database.Name != "kopie_test" {
-		t.Error("Incorrectly loaded database name.")
-	}
-	if database.Type != "postgres" {
-		t.Error("Incorrectly loaded database type.")
-	}
+func TestConfig_Read(t *testing.T) {
+	c :=  getConf()
+	assert.Equal(t, "Kopie default configuration.", c.Label)
 
-	if database.Url != "host=localhost port=5432 user=kopie dbname=kopie_test password=kopietestpw sslmode=disable" {
-		t.Error("Incorrectly loaded database url.")
-	}
 
-	for _, table := range database.Tables.Tables {
+	// Testing if we loaded the first database correctly
+	assert.Equal(t, "kopie_test", c.Databases[0].Name)
+	assert.Equal(t, "postgres", c.Databases[0].Type)
+	assert.Equal(t, "localhost", c.Databases[0].Host)
+	assert.Equal(t, 5432, c.Databases[0].Port)
+	assert.Equal(t, "kopietestpw", c.Databases[0].Password)
+	assert.Equal(t, "disable", c.Databases[0].Sslmode)
 
-		if table.dblink() != true {
-			t.Errorf("%s dblink not correctly interpreted", table.name())
-		}
-		if table.replicate() != true {
-			t.Errorf("%s replicate not correctly interpreted", table.name())
-		}
-	}
+	assert.Equal(t, "test", c.Databases[0].Tables[0].Name)
+	assert.Equal(t, true, c.Databases[0].Tables[0].Replicate)
+	assert.Equal(t, true, c.Databases[0].Tables[0].DbLink)
 
-	//Testing if database 1 is correctly read
-	database = c.Databases[1]
+	assert.Equal(t, "test2", c.Databases[0].Tables[1].Name)
+	assert.Equal(t, true, c.Databases[0].Tables[1].Replicate)
+	assert.Equal(t, true, c.Databases[0].Tables[1].DbLink)
 
-	if database.Name != "kopie_test2" {
-		t.Error("Incorrectly loaded database name.")
-	}
-	if database.Type != "postgres" {
-		t.Error("Incorrectly loaded database type.")
-	}
+	// Testing if we loaded the second database correctly
+	assert.Equal(t, "kopie_test2", c.Databases[1].Name)
+	assert.Equal(t, "postgres", c.Databases[1].Type)
+	assert.Equal(t, "localhost", c.Databases[1].Host)
+	assert.Equal(t, 5432, c.Databases[1].Port)
+	assert.Equal(t, "kopietestpw2", c.Databases[1].Password)
+	assert.Equal(t, "disable", c.Databases[1].Sslmode)
 
-	if database.Url != "host=localhost port=5432 user=kopie dbname=kopie_test2 password=kopietestpw sslmode=disable" {
-		t.Error("Incorrectly loaded database url.")
-	}
+	assert.Equal(t, "test", c.Databases[1].Tables[0].Name)
+	assert.Equal(t, true, c.Databases[1].Tables[0].Replicate)
+	assert.Equal(t, true, c.Databases[1].Tables[0].DbLink)
 
-	for _, table := range database.Tables.Tables {
+	assert.Equal(t, "test2", c.Databases[1].Tables[1].Name)
+	assert.Equal(t, true, c.Databases[1].Tables[1].Replicate)
+	assert.Equal(t, true, c.Databases[1].Tables[1].DbLink)
 
-		if table.dblink() != false {
-			t.Errorf("%s dblink not correctly interpreted", table.name())
-		}
-		if table.replicate() != false {
-			t.Errorf("%s replicate not correctly interpreted", table.name())
-		}
-	}
-	// Testing if procedurs are properly loaded
-	if c.Procedures[0].Name != "mainProcedure" {
-		t.Error("Incorrectly loaded first procedure name.")
-	}
+	// Testing if we loaded the first procedure correctly
+	assert.Equal(t, "mainProcedure", c.Procedures[0].Name)
+	assert.Equal(t, "pump", c.Procedures[0].Type)
+	assert.Equal(t, "kopie_test", c.Procedures[0].Pump.Master)
+	assert.Equal(t, "kopie_test2", c.Procedures[0].Pump.Slave)
+	assert.Equal(t, true, c.Procedures[0].Pump.Automigrate)
+	assert.Equal(t, "test", c.Procedures[0].Pump.Tables[0])
+	assert.Equal(t, "test2", c.Procedures[0].Pump.Tables[1])
 
-	if c.Procedures[0].Type != "replication" {
-		t.Error("Incorrectly loaded first procedure type.")
-	}
+	// Testing if we loaded the second procedure correctly
+	assert.Equal(t, "testProcedure", c.Procedures[1].Name)
+	assert.Equal(t, "testprotocol", c.Procedures[1].Type)
+	assert.Equal(t, "testprotocol.test", c.Procedures[1].Test.File)
+	assert.Equal(t, "Testing", c.Procedures[1].Test.Message)
 
-	if c.Procedures[0].FormattedSpecs.GetTables().Tables[0].name() != "mytable" {
-		t.Error("Incorrectly loaded first procedure first and second table.")
-	}
 
-	if c.Procedures[1].Name != "secondProcedure" {
-		t.Error("Incorrectly loaded first procedure name.")
-	}
+}
 
-	if c.Procedures[1].Type != "replication" {
-		t.Error("Incorrectly loaded first procedure type.")
-	}
+func TestDatabase_PostgresUrl(t *testing.T) {
+	c :=  getConf()
 
-	if c.Procedures[1].FormattedSpecs.GetTables().Tables[0].name() != "mytable" {
-		t.Error("Incorrectly loaded first procedure first and second table.")
-	}
+	assert.Equal(t, "host=localhost port=5432 user=kopie dbname=kopie_test password=kopietestpw sslmode=disable", c.Databases[0].PostgresUrl())
+	assert.Equal(t, "host=localhost port=5432 user=kopie dbname=kopie_test2 password=kopietestpw2 sslmode=disable", c.Databases[1].PostgresUrl())
+}
+
+func TestDatabase_Url(t *testing.T) {
+	c :=  getConf()
+
+	assert.Equal(t, "host=localhost port=5432 user=kopie dbname=kopie_test password=kopietestpw sslmode=disable", c.Databases[0].Url())
+	assert.Equal(t, "host=localhost port=5432 user=kopie dbname=kopie_test2 password=kopietestpw2 sslmode=disable", c.Databases[1].Url())
+}
+
+func TestDatabase_Connect(t *testing.T) {
+	c :=  getConf()
+
+	// If this throws an error the connection failed
+	c.Databases[0].Connect()
 }
