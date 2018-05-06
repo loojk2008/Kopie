@@ -5,7 +5,7 @@ import (
 )
 
 type Orchestrator struct {
-	Conf Config
+	Conf     Config
 	backOffs map[string]*backoff.ExponentialBackOff
 }
 
@@ -16,7 +16,7 @@ func (o *Orchestrator) StartWorker(proc Procedure) {
 		proc,
 		nil,
 		nil,
-		}
+	}
 
 	err := w.Read()
 	if err != nil {
@@ -29,11 +29,9 @@ func (o *Orchestrator) StartWorker(proc Procedure) {
 	}
 }
 
-
 func (o *Orchestrator) Start() {
-	for _, proc := range o.Conf.Procedures{
+	for _, proc := range o.Conf.Procedures {
 		go o.StartWorker(proc)
 	}
 	select {}
 }
-

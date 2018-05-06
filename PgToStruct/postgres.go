@@ -2,10 +2,10 @@ package PgToStruct
 
 import (
 	"database/sql"
+	"github.com/jinzhu/gorm"
 	_ "github.com/lib/pq"
 	"strconv"
 	"strings"
-	"github.com/jinzhu/gorm"
 )
 
 type Postgres struct {

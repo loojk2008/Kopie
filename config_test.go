@@ -1,22 +1,21 @@
 package Kopie
 
 import (
-	"testing"
 	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
 var configpath = "kopie.toml"
 
-func getConf() Config{
+func getConf() Config {
 	c := Config{}
 	c.Read(configpath)
 	return c
 }
 
 func TestConfig_Read(t *testing.T) {
-	c :=  getConf()
+	c := getConf()
 	assert.Equal(t, "Kopie default configuration.", c.Label)
-
 
 	// Testing if we loaded the first database correctly
 	assert.Equal(t, "kopie_test", c.Databases[0].Name)
@@ -65,25 +64,24 @@ func TestConfig_Read(t *testing.T) {
 	assert.Equal(t, "testprotocol.test", c.Procedures[1].Test.File)
 	assert.Equal(t, "Testing", c.Procedures[1].Test.Message)
 
-
 }
 
 func TestDatabase_PostgresUrl(t *testing.T) {
-	c :=  getConf()
+	c := getConf()
 
 	assert.Equal(t, "host=localhost port=5432 user=kopie dbname=kopie_test password=kopietestpw sslmode=disable", c.Databases[0].PostgresUrl())
 	assert.Equal(t, "host=localhost port=5432 user=kopie dbname=kopie_test2 password=kopietestpw2 sslmode=disable", c.Databases[1].PostgresUrl())
 }
 
 func TestDatabase_Url(t *testing.T) {
-	c :=  getConf()
+	c := getConf()
 
 	assert.Equal(t, "host=localhost port=5432 user=kopie dbname=kopie_test password=kopietestpw sslmode=disable", c.Databases[0].Url())
 	assert.Equal(t, "host=localhost port=5432 user=kopie dbname=kopie_test2 password=kopietestpw2 sslmode=disable", c.Databases[1].Url())
 }
 
 func TestDatabase_Connect(t *testing.T) {
-	c :=  getConf()
+	c := getConf()
 
 	// If this throws an error the connection failed
 	c.Databases[0].Connect()

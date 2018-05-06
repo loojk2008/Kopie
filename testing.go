@@ -1,12 +1,11 @@
 package Kopie
 
 import (
-	"os"
+	"bytes"
 	"fmt"
 	"io"
-	"bytes"
+	"os"
 )
-
 
 func createFile(path string) error {
 	// detect if file exists
@@ -15,7 +14,9 @@ func createFile(path string) error {
 	// create file if not exists
 	if os.IsNotExist(err) {
 		var file, err = os.Create(path)
-		if isError(err) { return err}
+		if isError(err) {
+			return err
+		}
 		defer file.Close()
 	}
 	return nil
@@ -24,23 +25,31 @@ func createFile(path string) error {
 func writeFile(path string, message string) error {
 	// open file using READ & WRITE permission
 	var file, err = os.OpenFile(path, os.O_RDWR, 0644)
-	if isError(err) { return err}
+	if isError(err) {
+		return err
+	}
 	defer file.Close()
 
 	// write some text line-by-line to file
 	_, err = file.WriteString(message)
-	if isError(err) { return err}
+	if isError(err) {
+		return err
+	}
 
 	// save changes
 	err = file.Sync()
-	if isError(err) { return err}
+	if isError(err) {
+		return err
+	}
 	return nil
 }
 
-func readFile(path string) (txt string, error error){
+func readFile(path string) (txt string, error error) {
 	// re-open file
 	var file, err = os.OpenFile(path, os.O_RDWR, 0644)
-	if isError(err) { return }
+	if isError(err) {
+		return
+	}
 	defer file.Close()
 
 	// read file, line by line
@@ -66,7 +75,9 @@ func readFile(path string) (txt string, error error){
 func deleteFile(path string) error {
 	// delete file
 	var err = os.Remove(path)
-	if isError(err) { return err}
+	if isError(err) {
+		return err
+	}
 	return nil
 }
 

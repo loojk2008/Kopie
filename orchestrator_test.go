@@ -1,11 +1,10 @@
 package Kopie
 
 import (
-	"testing"
 	"github.com/cenkalti/backoff"
 	"github.com/stretchr/testify/assert"
+	"testing"
 )
-
 
 var backoffs = make(map[string]*backoff.ExponentialBackOff)
 
@@ -14,7 +13,7 @@ var orchest = Orchestrator{
 	backoffs,
 }
 
-func StartWorker(){
+func StartWorker() {
 	orchest.StartWorker(c.Procedures[1])
 }
 

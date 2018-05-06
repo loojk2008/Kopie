@@ -1,17 +1,16 @@
 package Kopie
 
 import (
-	"github.com/cenkalti/backoff"
 	"errors"
+	"github.com/cenkalti/backoff"
 )
 
-
 type Worker struct {
-	Config        Config
-	Procedure     Procedure
-	protocol      Protocol
+	Config    Config
+	Procedure Procedure
+	protocol  Protocol
 
-	backOff 	  *backoff.ExponentialBackOff
+	backOff *backoff.ExponentialBackOff
 }
 
 // Read it's procedure and determine what to do
@@ -42,4 +41,3 @@ func (w *Worker) Start() error {
 	}
 	return nil
 }
-

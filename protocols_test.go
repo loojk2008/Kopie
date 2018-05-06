@@ -1,11 +1,11 @@
 package Kopie
 
 import (
-	"testing"
 	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
-var c =  getConf()
+var c = getConf()
 
 var testProtocol = TestProtocol{
 	c,

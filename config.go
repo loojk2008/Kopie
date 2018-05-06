@@ -1,38 +1,37 @@
 package Kopie
 
 import (
-	"github.com/BurntSushi/toml"
-	"io/ioutil"
 	"fmt"
+	"github.com/BurntSushi/toml"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
-
+	"io/ioutil"
 )
 
 type Database struct {
-	Name string `toml:"name"`
-	Type string `toml:"type"`
-	Host string `toml:"host"`
-	Port int `toml:"port"`
-	User string `toml:"user"`
+	Name     string `toml:"name"`
+	Type     string `toml:"type"`
+	Host     string `toml:"host"`
+	Port     int    `toml:"port"`
+	User     string `toml:"user"`
 	Password string `toml:"password"`
-	Sslmode string `toml:"sslmode"`
-	Tables []struct {
-		Name string `toml:"name"`
-		Replicate bool `toml:"replicate"`
-		DbLink bool `toml:"db_link"`
+	Sslmode  string `toml:"sslmode"`
+	Tables   []struct {
+		Name      string `toml:"name"`
+		Replicate bool   `toml:"replicate"`
+		DbLink    bool   `toml:"db_link"`
 	} `toml:"tables"`
 }
 
 func (d *Database) PostgresUrl() string {
 	return fmt.Sprintf("host=%s port=%d user=%s dbname=%s password=%s sslmode=%s",
-			d.Host,
-			d.Port,
-			d.User,
-			d.Name,
-			d.Password,
-			d.Sslmode,
-		)
+		d.Host,
+		d.Port,
+		d.User,
+		d.Name,
+		d.Password,
+		d.Sslmode,
+	)
 }
 
 func (d *Database) Url() string {
@@ -43,7 +42,6 @@ func (d *Database) Url() string {
 		return d.PostgresUrl()
 	}
 }
-
 
 func (d *Database) Connect() *gorm.DB {
 	db, err := gorm.Open(d.Type, d.Url())
@@ -57,20 +55,20 @@ type Procedure struct {
 	Name string `toml:"name"`
 	Type string `toml:"type"`
 	Pump struct {
-		Master string `toml:"master"`
-		Tables []string `toml:"tables"`
-		Slave string `toml:"slave"`
-		Automigrate bool `toml:"automigrate"`
+		Master      string   `toml:"master"`
+		Tables      []string `toml:"tables"`
+		Slave       string   `toml:"slave"`
+		Automigrate bool     `toml:"automigrate"`
 	} `toml:"pump"`
 	Test struct {
-		File string `toml:"file"`
+		File    string `toml:"file"`
 		Message string `toml:"message"`
 	} `toml:"test"`
 }
 
 type Config struct {
-	Label string `toml:"label"`
-	Databases []Database `toml:"databases"`
+	Label      string      `toml:"label"`
+	Databases  []Database  `toml:"databases"`
 	Procedures []Procedure `toml:"protocols"`
 }
 
@@ -92,4 +90,3 @@ func (c *Config) Read(path string) {
 		panic(err)
 	}
 }
-

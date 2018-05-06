@@ -1,8 +1,8 @@
 package Kopie
 
 import (
-	"testing"
 	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
 var worker = Worker{
@@ -11,7 +11,6 @@ var worker = Worker{
 	nil,
 	nil,
 }
-
 
 func TestWorker_Read(t *testing.T) {
 	assert.NoError(t, worker.Read())

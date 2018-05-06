@@ -1,8 +1,8 @@
 package PgToStruct
 
 import (
-	"testing"
 	"github.com/jinzhu/gorm"
+	"testing"
 )
 
 var url = "host=localhost port=5432 user=kopie dbname=kopie_test password=kopietestpw sslmode=disable"
