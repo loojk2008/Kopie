@@ -84,7 +84,13 @@ func (p *Pump) Initiate() error {
 
 	// Get mappings of the current tables
 	toBeReplicated, err := masterPg.TablesToStruct(p.Procedure.Pump.Tables)
+	if err != nil {
+		return err
+	}
 	ExistingTables, err := slavePg.TablesToStruct(p.Procedure.Pump.Tables)
+	if err != nil {
+		return err
+	}
 
 	// Create the tables to be replicated on slave if they do not exist. On name collisions, create a new name
 	// procedurally.
@@ -95,7 +101,10 @@ func (p *Pump) Initiate() error {
 			columns := CreateTable(table)
 
 			// And now we create the table
-			p.slaveCon.Exec(`CREATE TABLE IF NOT EXIST %s (%s)`, tableName, columns)
+			err := p.slaveCon.Exec(`CREATE TABLE IF NOT EXIST %s (%s)`, tableName, columns).Error
+			if err != nil {
+				return err
+			}
 
 		} else {
 			//	If the table does exist it is more complicated. If the tables are equal, it is no problem:
@@ -114,7 +123,10 @@ func (p *Pump) Initiate() error {
 
 				// And now we create the table. If we already performed this operation last time, it will fail;
 				// but we still store the name for use later.
-				p.slaveCon.Exec(`CREATE TABLE IF NOT EXIST %s (%s)`, name, columns)
+				err = p.slaveCon.Exec(`CREATE TABLE IF NOT EXIST %s (%s)`, name, columns).Error
+				if err != nil {
+					return err
+				}
 				// Storing the alias for later
 				i, _ := p.master.GetTable(tableName)
 				p.master.Tables[i].alias = name
@@ -122,22 +134,37 @@ func (p *Pump) Initiate() error {
 		}
 	}
 
-	p.masterCon.Exec("CREATE EXTENSION IF NOT EXISTS postgres_fdw")
-	p.slaveCon.Exec("CREATE EXTENSION IF NOT EXISTS postgres_fdw")
+	err = p.masterCon.Exec("CREATE EXTENSION IF NOT EXISTS postgres_fdw").Error
+	if err != nil {
+		return err
+	}
+	err = p.slaveCon.Exec("CREATE EXTENSION IF NOT EXISTS postgres_fdw").Error
+	if err != nil {
+		return err
+	}
 
 	//Data is pushed from master to slave
-	p.masterCon.Exec(`CREATE SERVER IF NOT EXISTS %s
+	err = p.masterCon.Exec(`CREATE SERVER IF NOT EXISTS %s
 						 FOREIGN DATA WRAPPER postgres_fdw
 						 OPTIONS (host '%s', port '%d', dbname '%s');`,
-		p.slave.Name, p.slave.Host, p.slave.Port, p.slave.Name)
+		p.slave.Name, p.slave.Host, p.slave.Port, p.slave.Name).Error
+	if err != nil {
+		return err
+	}
 
-	p.masterCon.Exec(`CREATE USER MAPPING IF NOT EXISTS FOR %s
+	err = p.masterCon.Exec(`CREATE USER MAPPING IF NOT EXISTS FOR %s
  						  SERVER %s
 						  OPTIONS (user '%s', password '%s');`,
-		p.slave.User, p.slave.Name, p.slave.User, p.slave.Password)
+		p.slave.User, p.slave.Name, p.slave.User, p.slave.Password).Error
+	if err != nil {
+		return err
+	}
 
-	p.masterCon.Exec(`IMPORT FOREIGN SCHEMA public
-    					  FROM SERVER %s INTO public;`, p.slave.Name, p.slave.Name, p.Name+p.slave.Name)
+	err = p.masterCon.Exec(`IMPORT FOREIGN SCHEMA public
+    					  FROM SERVER %s INTO public;`, p.slave.Name, p.slave.Name, p.Name+p.slave.Name).Error
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
