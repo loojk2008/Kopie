@@ -79,7 +79,7 @@ type Procedure struct {
 
 type Config struct {
 	Label      string      `toml:"label"`
-	Suffix      string      `toml:"suffix"`
+	Suffix     string      `toml:"suffix"`
 	Databases  []Database  `toml:"databases"`
 	Procedures []Procedure `toml:"protocols"`
 }

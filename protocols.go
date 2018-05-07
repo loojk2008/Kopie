@@ -5,10 +5,9 @@ import (
 	"fmt"
 	"github.com/adam-hanna/arrayOperations"
 	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/mitchellh/hashstructure"
 	"strings"
-	_ "github.com/jinzhu/gorm/dialects/postgres"
-
 )
 
 type Protocol interface {
@@ -60,7 +59,7 @@ type Pump struct {
 func CreateTable(params *PgToStruct.TemplateParams) string {
 	columns := ""
 	for _, column := range params.Fields {
-		columns = columns + strings.ToLower(column.Name) +" "+ strings.ToUpper(column.Type) + ","
+		columns = columns + strings.ToLower(column.Name) + " " + strings.ToUpper(column.Type) + ","
 	}
 	columns = strings.TrimSuffix(columns, ",")
 	return columns
@@ -103,7 +102,7 @@ func (p *Pump) Initiate() error {
 			// first we create a proper expression for the columns:
 			columns := CreateTable(table)
 
-			qry := fmt.Sprintf(`CREATE TABLE IF NOT EXISTS %s (%s)`, tableName + p.Config.Suffix, columns)
+			qry := fmt.Sprintf(`CREATE TABLE IF NOT EXISTS %s (%s)`, tableName+p.Config.Suffix, columns)
 
 			// And now we create the table
 			err := p.slaveCon.Exec(qry).Error
@@ -130,7 +129,7 @@ func (p *Pump) Initiate() error {
 
 				// And now we create the table. If we already performed this operation last time, it will fail;
 				// but we still store the name for use later.
-				err = p.slaveCon.Exec(`CREATE TABLE IF NOT EXISTS %s (%s)`, name + p.Config.Suffix, columns).Error
+				err = p.slaveCon.Exec(`CREATE TABLE IF NOT EXISTS %s (%s)`, name+p.Config.Suffix, columns).Error
 				if err != nil {
 					fmt.Println("Error creating table.")
 					return err
@@ -140,7 +139,7 @@ func (p *Pump) Initiate() error {
 				p.master.Tables[i].alias = name + p.Config.Suffix
 			}
 		}
-		for i, table := range p.master.Tables{
+		for i, table := range p.master.Tables {
 			if table.alias == "" {
 				// If no alias is set, we set them now (they can only be set if there were previously duplicated tables.
 				p.master.Tables[i].alias = table.Name + p.Config.Suffix
@@ -160,7 +159,7 @@ func (p *Pump) Initiate() error {
 	qry := fmt.Sprintf(`CREATE SERVER IF NOT EXISTS %s
 						 	FOREIGN DATA WRAPPER postgres_fdw
 						 	OPTIONS (host '%s', port '%d', dbname '%s');`,
-				p.slave.Name, p.slave.Host, p.slave.Port, p.slave.Name)
+		p.slave.Name, p.slave.Host, p.slave.Port, p.slave.Name)
 	//Data is pushed from master to slave
 	err = p.masterCon.Exec(qry).Error
 	if err != nil {
@@ -214,20 +213,4 @@ func (p *Pump) End() error {
 		return err
 	}
 	return nil
-}
-
-func GetModels(tables []string, db gorm.DB) (map[string]*PgToStruct.TemplateParams, error) {
-	psql, err := PgToStruct.PostgresfromCon(db)
-	if err != nil {
-		return nil, err
-	}
-	structs, err := psql.TablesToStruct(tables)
-	if err != nil {
-		return nil, err
-	}
-	return structs, nil
-}
-
-func AutoMigrate(structs, remote *gorm.DB) {
-	fmt.Println("Automigration has not been implemented yet. :( It is a difficult problem.")
 }

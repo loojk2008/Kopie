@@ -1,13 +1,11 @@
 package Kopie
 
 import (
-	"github.com/stretchr/testify/assert"
-	"testing"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
-
+	"github.com/stretchr/testify/assert"
+	"testing"
 	"time"
-	"fmt"
 )
 
 var c = getConf()
@@ -57,22 +55,23 @@ func TestPump(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	go func () {
+	go func() {
 		err = pump.Start()
 		if err != nil {
-		t.Error(err)
-		}}()
+			t.Error(err)
+		}
+	}()
 
 	type Person struct {
 		Name string
-		Age int
+		Age  int
 	}
 
 	p := Person{}
 	// Wait for data transfer
-	time.Sleep(1* time.Second)
-	s := pump.slaveCon.Raw("select * from test_kopie where name = 'karel';").Scan(&p).Value
-	assert.Equal(t,18,  p.Age)
+	time.Sleep(1 * time.Second)
+	pump.slaveCon.Raw("select * from test_kopie where name = 'karel';").Scan(&p)
+	assert.Equal(t, 18, p.Age)
 
 	err = pump.End()
 	if err != nil {
