@@ -62,11 +62,12 @@ func TestPostgres_RetrieveFields(t *testing.T) {
 	psql := GetConnection()
 	fields, err := psql.RetrieveFields("test")
 	tErr(t, err)
+
 	if fields[0].Name != "name" {
 		t.Error("Failed to retrieve first field name")
 	}
 
-	if fields[1].Name != "date" {
+	if fields[1].Name != "age" {
 		t.Error("Failed to retrieve second field name")
 	}
 
@@ -74,7 +75,7 @@ func TestPostgres_RetrieveFields(t *testing.T) {
 		t.Error("Failed to retrieve first field type")
 	}
 
-	if fields[1].Type != "timestamp without time zone" {
+	if fields[1].Type != "numeric" {
 		t.Error("Failed to retrieve second field type")
 	}
 }
@@ -100,7 +101,7 @@ func TestPostgres_TablesToStruct(t *testing.T) {
 		t.Error("Failed to retrieve first field name")
 	}
 
-	if tables["test"].Fields[1].Name != "Date" {
+	if tables["test"].Fields[1].Name != "Age" {
 		t.Error("Failed to retrieve second field name")
 	}
 }
