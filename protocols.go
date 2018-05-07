@@ -137,7 +137,13 @@ func (p *Pump) Initiate() error {
 				}
 				// Storing the alias for later
 				i, _ := p.master.GetTable(tableName)
-				p.master.Tables[i].alias = name
+				p.master.Tables[i].alias = name + p.Config.Suffix
+			}
+		}
+		for i, table := range p.master.Tables{
+			if table.alias == "" {
+				// If no alias is set, we set them now (they can only be set if there were previously duplicated tables.
+				p.master.Tables[i].alias = table.Name + p.Config.Suffix
 			}
 		}
 	}
@@ -182,11 +188,31 @@ func (p *Pump) Initiate() error {
 	return nil
 }
 
-func (p *Pump) Start() error { return nil }
+func (p *Pump) Start() error {
+	for {
+		for _, table := range p.master.Tables {
+			qry := fmt.Sprintf(`with deleted as 
+									  (DELETE FROM %s * RETURNING * ) 
+									   INSERT INTO %s SELECT * FROM deleted;`, table.Name, table.alias)
+			err := p.masterCon.Exec(qry).Error
+			if err != nil {
+				fmt.Println("Error pumping values.")
+				return err
+			}
+		}
+		return nil
+	}
+}
 
 func (p *Pump) End() error {
-	p.masterCon.Close()
-	p.slaveCon.Close()
+	err := p.masterCon.Close()
+	if err != nil {
+		return err
+	}
+	err = p.slaveCon.Close()
+	if err != nil {
+		return err
+	}
 	return nil
 }
 

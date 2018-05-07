@@ -6,6 +6,8 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 
+	"time"
+	"fmt"
 )
 
 var c = getConf()
@@ -52,6 +54,27 @@ func TestPump(t *testing.T) {
 		&gorm.DB{},
 	}
 	err := pump.Initiate()
+	if err != nil {
+		t.Error(err)
+	}
+	go func () {
+		err = pump.Start()
+		if err != nil {
+		t.Error(err)
+		}}()
+
+	type Person struct {
+		Name string
+		Age int
+	}
+
+	p := Person{}
+	// Wait for data transfer
+	time.Sleep(1* time.Second)
+	s := pump.slaveCon.Raw("select * from test_kopie where name = 'karel';").Scan(&p).Value
+	assert.Equal(t,18,  p.Age)
+
+	err = pump.End()
 	if err != nil {
 		t.Error(err)
 	}

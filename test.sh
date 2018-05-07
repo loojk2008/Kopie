@@ -12,6 +12,7 @@ createdb kopie_test2 --owner kopie
 
 psql kopie_test -c "create table test(name varchar, age numeric);"
 psql kopie_test -c "create table test2(price numeric);"
+psql kopie_test -c "insert into test values ('karel', 18)"
 
 psql kopie_test -c "alter table test owner to kopie;"
 psql kopie_test -c "alter table test2 owner to kopie;"
@@ -19,6 +20,6 @@ psql kopie_test -c "alter table test2 owner to kopie;"
 
 go test -v
 
-#dropdb kopie_test
-#dropdb kopie_test2
-#dropuser kopie
+dropdb kopie_test
+dropdb kopie_test2
+dropuser kopie
