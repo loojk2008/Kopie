@@ -7,6 +7,8 @@ import (
 	"github.com/jinzhu/gorm"
 	"github.com/mitchellh/hashstructure"
 	"strings"
+	_ "github.com/jinzhu/gorm/dialects/postgres"
+
 )
 
 type Protocol interface {
@@ -58,7 +60,7 @@ type Pump struct {
 func CreateTable(params *PgToStruct.TemplateParams) string {
 	columns := ""
 	for _, column := range params.Fields {
-		columns = columns + strings.ToLower(column.Name) + strings.ToUpper(column.Type) + ","
+		columns = columns + strings.ToLower(column.Name) +" "+ strings.ToUpper(column.Type) + ","
 	}
 	columns = strings.TrimSuffix(columns, ",")
 	return columns
@@ -87,6 +89,7 @@ func (p *Pump) Initiate() error {
 	if err != nil {
 		return err
 	}
+
 	ExistingTables, err := slavePg.TablesToStruct(p.Procedure.Pump.Tables)
 	if err != nil {
 		return err
@@ -100,9 +103,13 @@ func (p *Pump) Initiate() error {
 			// first we create a proper expression for the columns:
 			columns := CreateTable(table)
 
+			qry := fmt.Sprintf(`CREATE TABLE IF NOT EXISTS %s (%s)`, tableName + p.Config.Suffix, columns)
+
 			// And now we create the table
-			err := p.slaveCon.Exec(`CREATE TABLE IF NOT EXIST %s (%s)`, tableName, columns).Error
+			err := p.slaveCon.Exec(qry).Error
 			if err != nil {
+				fmt.Println("Error creating slave tables.")
+				fmt.Println(columns, tableName)
 				return err
 			}
 
@@ -123,8 +130,9 @@ func (p *Pump) Initiate() error {
 
 				// And now we create the table. If we already performed this operation last time, it will fail;
 				// but we still store the name for use later.
-				err = p.slaveCon.Exec(`CREATE TABLE IF NOT EXIST %s (%s)`, name, columns).Error
+				err = p.slaveCon.Exec(`CREATE TABLE IF NOT EXISTS %s (%s)`, name + p.Config.Suffix, columns).Error
 				if err != nil {
+					fmt.Println("Error creating table.")
 					return err
 				}
 				// Storing the alias for later
@@ -143,26 +151,32 @@ func (p *Pump) Initiate() error {
 		return err
 	}
 
+	qry := fmt.Sprintf(`CREATE SERVER IF NOT EXISTS %s
+						 	FOREIGN DATA WRAPPER postgres_fdw
+						 	OPTIONS (host '%s', port '%d', dbname '%s');`,
+				p.slave.Name, p.slave.Host, p.slave.Port, p.slave.Name)
 	//Data is pushed from master to slave
-	err = p.masterCon.Exec(`CREATE SERVER IF NOT EXISTS %s
-						 FOREIGN DATA WRAPPER postgres_fdw
-						 OPTIONS (host '%s', port '%d', dbname '%s');`,
-		p.slave.Name, p.slave.Host, p.slave.Port, p.slave.Name).Error
+	err = p.masterCon.Exec(qry).Error
 	if err != nil {
+		fmt.Println("Error creating foreign server.")
 		return err
 	}
 
-	err = p.masterCon.Exec(`CREATE USER MAPPING IF NOT EXISTS FOR %s
+	qry = fmt.Sprintf(`CREATE USER MAPPING IF NOT EXISTS FOR %s
  						  SERVER %s
 						  OPTIONS (user '%s', password '%s');`,
-		p.slave.User, p.slave.Name, p.slave.User, p.slave.Password).Error
+		p.slave.User, p.slave.Name, p.slave.User, p.slave.Password)
+
+	err = p.masterCon.Exec(qry).Error
 	if err != nil {
+		fmt.Println("Error creating user mapping.")
 		return err
 	}
-
-	err = p.masterCon.Exec(`IMPORT FOREIGN SCHEMA public
-    					  FROM SERVER %s INTO public;`, p.slave.Name, p.slave.Name, p.Name+p.slave.Name).Error
+	qry = fmt.Sprintf(`IMPORT FOREIGN SCHEMA public
+    					  FROM SERVER %s INTO public;`, p.slave.Name)
+	err = p.masterCon.Exec(qry).Error
 	if err != nil {
+		fmt.Println("Error creating foreign schema.")
 		return err
 	}
 	return nil

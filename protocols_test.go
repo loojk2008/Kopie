@@ -3,6 +3,9 @@ package Kopie
 import (
 	"github.com/stretchr/testify/assert"
 	"testing"
+	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/postgres"
+
 )
 
 var c = getConf()
@@ -34,6 +37,21 @@ func TestTestProtocol_Start(t *testing.T) {
 
 func TestTestProtocol_End(t *testing.T) {
 	err := testProtocol.End()
+	if err != nil {
+		t.Error(err)
+	}
+}
+
+func TestPump(t *testing.T) {
+	pump := Pump{
+		c,
+		c.Procedures[0],
+		Database{},
+		Database{},
+		&gorm.DB{},
+		&gorm.DB{},
+	}
+	err := pump.Initiate()
 	if err != nil {
 		t.Error(err)
 	}

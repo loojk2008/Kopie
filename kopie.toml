@@ -3,6 +3,8 @@
 # Just for logging purposes, incase you are running multiple different
 # configuration files
 label = "Kopie default configuration."
+#suffix is used when kopie has generated tables
+suffix = "_kopie"
 
 [[databases]]
   name = "kopie_test"
@@ -15,11 +17,9 @@ label = "Kopie default configuration."
   [[databases.tables]]
     name = "test"
     replicate = true
-    db_link = true
   [[databases.tables]]
     name = "test2"
     replicate = true
-    db_link = true
 
 [[databases]]
   name = "kopie_test2"
@@ -27,7 +27,7 @@ label = "Kopie default configuration."
   host = "localhost"
   port = 5432
   user = "kopie"
-  password = "kopietestpw2"
+  password = "kopietestpw"
   sslmode = "disable"
   [[databases.tables]]
     name = "test"

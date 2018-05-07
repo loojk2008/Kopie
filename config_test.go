@@ -36,7 +36,7 @@ func TestConfig_Read(t *testing.T) {
 	assert.Equal(t, "postgres", c.Databases[1].Type)
 	assert.Equal(t, "localhost", c.Databases[1].Host)
 	assert.Equal(t, 5432, c.Databases[1].Port)
-	assert.Equal(t, "kopietestpw2", c.Databases[1].Password)
+	assert.Equal(t, "kopietestpw", c.Databases[1].Password)
 	assert.Equal(t, "disable", c.Databases[1].Sslmode)
 
 	assert.Equal(t, "test", c.Databases[1].Tables[0].Name)
@@ -66,19 +66,18 @@ func TestDatabase_PostgresUrl(t *testing.T) {
 	c := getConf()
 
 	assert.Equal(t, "host=localhost port=5432 user=kopie dbname=kopie_test password=kopietestpw sslmode=disable", c.Databases[0].PostgresUrl())
-	assert.Equal(t, "host=localhost port=5432 user=kopie dbname=kopie_test2 password=kopietestpw2 sslmode=disable", c.Databases[1].PostgresUrl())
+	assert.Equal(t, "host=localhost port=5432 user=kopie dbname=kopie_test2 password=kopietestpw sslmode=disable", c.Databases[1].PostgresUrl())
 }
 
 func TestDatabase_Url(t *testing.T) {
 	c := getConf()
 
 	assert.Equal(t, "host=localhost port=5432 user=kopie dbname=kopie_test password=kopietestpw sslmode=disable", c.Databases[0].Url())
-	assert.Equal(t, "host=localhost port=5432 user=kopie dbname=kopie_test2 password=kopietestpw2 sslmode=disable", c.Databases[1].Url())
+	assert.Equal(t, "host=localhost port=5432 user=kopie dbname=kopie_test2 password=kopietestpw sslmode=disable", c.Databases[1].Url())
 }
 
 func TestDatabase_Connect(t *testing.T) {
 	c := getConf()
-
 	// If this throws an error the connection failed
 	c.Databases[0].Connect()
 }
