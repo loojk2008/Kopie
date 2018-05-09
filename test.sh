@@ -18,7 +18,7 @@ psql kopie_test -c "alter table test owner to kopie;"
 psql kopie_test -c "alter table test2 owner to kopie;"
 
 
-go test -v
+TESTING=true go test -v
 
 dropdb kopie_test
 dropdb kopie_test2

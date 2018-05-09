@@ -9,6 +9,7 @@ import (
 	"github.com/mitchellh/hashstructure"
 	"strings"
 	"time"
+	"os"
 )
 
 type Protocol interface {
@@ -201,6 +202,10 @@ func (p *Pump) Start() error {
 
 				return err
 			}
+		}
+		// Without this we create a race condition where the test has ended but this routine keeps running
+		if os.Getenv("TESTING") == "true" {
+			return nil
 		}
 		time.Sleep(time.Duration(p.Procedure.Pump.Period) * time.Second)
 	}
