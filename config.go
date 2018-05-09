@@ -1,4 +1,4 @@
-package Kopie
+package main
 
 import (
 	"fmt"
@@ -70,6 +70,8 @@ type Procedure struct {
 		Tables      []string `toml:"tables"`
 		Slave       string   `toml:"slave"`
 		Automigrate bool     `toml:"automigrate"`
+		Period 		int      `toml:"period"`
+
 	} `toml:"pump"`
 	Test struct {
 		File    string `toml:"file"`

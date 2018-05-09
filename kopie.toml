@@ -47,6 +47,7 @@ suffix = "_kopie"
    ]
    slave = "kopie_test2"
    automigrate = true
+   period = 1
 
 [[protocols]]
   name = "testProcedure"

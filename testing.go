@@ -1,4 +1,4 @@
-package Kopie
+package main
 
 import (
 	"bytes"

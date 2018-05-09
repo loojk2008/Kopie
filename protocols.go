@@ -1,4 +1,4 @@
-package Kopie
+package main
 
 import (
 	"Kopie/PgToStruct"
@@ -8,6 +8,7 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/mitchellh/hashstructure"
 	"strings"
+	"time"
 )
 
 type Protocol interface {
@@ -196,10 +197,12 @@ func (p *Pump) Start() error {
 			err := p.masterCon.Exec(qry).Error
 			if err != nil {
 				fmt.Println("Error pumping values.")
+				fmt.Println(err)
+
 				return err
 			}
 		}
-		return nil
+		time.Sleep(time.Duration(p.Procedure.Pump.Period) * time.Second)
 	}
 }
 
