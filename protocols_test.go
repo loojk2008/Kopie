@@ -55,12 +55,10 @@ func TestPump(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	go func() {
-		err = pump.Start()
-		if err != nil {
-			t.Error(err)
-		}
-	}()
+	err = pump.Start()
+	if err != nil {
+		t.Error(err)
+
 
 	type Person struct {
 		Name string
@@ -77,4 +75,4 @@ func TestPump(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-}
+}}
