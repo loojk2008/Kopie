@@ -1,8 +1,9 @@
 package main
 
+import "os"
+
 type Kopie struct {
 	ConfigPath string
-
 	config Config
 }
 
@@ -16,4 +17,9 @@ func NewKopie(path string) Kopie {
 func (k *Kopie) Start() {
 	orc := Orchestrator{k.config, nil}
 	orc.Start()
+}
+
+func main(){
+	k := NewKopie(os.Getenv("KOPIE_CONFIG_PATH"))
+	k.Start()
 }
